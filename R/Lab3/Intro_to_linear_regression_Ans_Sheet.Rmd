@@ -1,0 +1,105 @@
+---
+title: "Introduction to linear regression"
+author: "Team name"
+date: "Date of lab session"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+* * *
+
+## Lab report
+
+#### Load data:
+```{r load-data}
+download.file("http://www.openintro.org/stat/data/mlb11.RData", destfile = "mlb11.RData")
+load("mlb11.RData")
+```
+
+
+## Exercises:
+
+#### Exercise 1: 
+
+
+
+#### Exercise 2: 
+
+
+
+#### Exercise 3: 
+
+
+
+#### Exercise 4: 
+
+
+
+
+#### Exercise 5: 
+
+
+
+#### Exercise 6:
+
+
+
+#### Exercise 7:
+
+
+
+#### Exercise 8:
+
+
+
+
+
+* * *
+
+## On your own:
+
+#### 1: 
+
+
+
+
+
+#### 2: 
+
+
+
+
+#### 3:
+
+
+
+#### 4:
+
+
+
+
+
+#### 5:
+
+
+
+
+
+## Teamwork report
+
+<!--
+For each team member, write their name, whether they attended the lab session, 
+whether they were the author for this week, and their contribution to the lab 
+report (as a percentage). The percentages should add up to 100.
+-->
+
+| Team member             | Attendance | Author   | Contribution % |
+|:------------------------|:----------:|:--------:|---------------:|
+| Name of member 1        | Yes / No   | Yes / No | 25%            |
+| Name of member 2        | Yes / No   | Yes / No | 25%            |
+| Name of member 3        | Yes / No   | Yes / No | 25%            |
+| Name of member 4        | Yes / No   | Yes / No | 25%            |
+| Total                   |            |          | 100%           |
