@@ -26,15 +26,16 @@ typedef struct LLPath {
 LLint *add_to_set(LLint *set, int val);
 bool set_contains(LLint *set, int val);
 LLint *enqueue_int(LLint *q, int val);
+bool dequeue_int(LLint **q, int *ret);
 
-LLPath *enqueue_path(LLPath *q, Path path); 
-bool dequeue_path(LLPath **q, Path *ret);
+LLPath *enqueue_path(LLPath *q, Path path); //my code
+bool dequeue_path(LLPath **q, Path *ret);		//my code
 
 Graph *graph_create(int vertices);
 void graph_add_edge(Graph *g, int i, int j) ;
 bool graph_has_edge(Graph *g, int i, int j);
 
-Path graph_find_path_bfs(Graph *g, int i, int j);
-Path graph_find_path_dfs(Graph *g, int i, int j);
+Path graph_find_path_bfs(Graph *g, int i, int j);	//we code
+Path graph_find_path_dfs(Graph *g, int i, int j);	//we code
 
 void print_path(Path path);

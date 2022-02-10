@@ -23,7 +23,7 @@ bool set_contains(LLint *set, int val) {
   }
 }
 
-LLint *enqueue_int(LLint *q, int val) {
+LLint *enqueue_int(LLint *q, int val) {	//from the class lecture
   LLint *newint = calloc(1, sizeof(LLint));
   newint->val = val;
 
@@ -31,10 +31,24 @@ LLint *enqueue_int(LLint *q, int val) {
     return newint;}
   LLint *current = q;
   while(current->next != NULL) {
+
     current = current->next;
   }
   current->next = newint;
   return q;
+}
+
+bool dequeue_int(LLint **q, int *ret) {	//from the class lecture
+  if (*q == NULL) {
+    return false;
+  }
+
+  *ret = (*q)->val;
+  
+  LLint *freethis = *q;
+  *q = (*q)->next;
+  free(freethis);
+  return true;
 }
 // Linked lists of paths. You'll need to implement these.
 
@@ -43,14 +57,15 @@ LLint *enqueue_int(LLint *q, int val) {
 // will allocate a new linked list node and return that.
 LLPath *enqueue_path(LLPath *q, Path path) {
   // YOUR CODE HERE
-  LLPath *newpath = (LLPath *)calloc(1, sizeof(LLPath));	//creates a new path
+  LLPath *newpath = calloc(1, sizeof(LLPath));	//creates a new path
   newpath->val = path;	//assigns that path that we want to add
   if(q == NULL){return newpath;}	//runs if the linked list is null
-  
+
   LLPath *temp = q; //takes the pointer of q
   while(temp->next != NULL){	//this takes us to the bottom the list to add it there
   	temp = temp->next;			//everything must go in order
   }									//this makes it first in, first out
+
   temp->next = newpath; //this adds the new path to the bottom of the list
   return q;
 }
@@ -116,22 +131,29 @@ void print_path(Path path) {
 // Breadth-first search!
 Path graph_find_path_bfs(Graph *g, int i, int j) {
   // YOUR CODE HERE.
-  LLint *visited;	//keeps a list of the paths we want to visit
-  LLPath *to_visit;	//keeps a list of the paths we already visit
+  LLint *visited = NULL;	//keeps a list of the paths we want to visit
+  LLint *to_visit = NULL;	//keeps a list of the paths we already visit
   Path my_path;
   
-  to_visit = enqueue_path(to_visit, my_path);	//stores the list where we want to reference
-  
-  while(to_visit != NULL){
-  		Path current;
-  		dequeue_path(&to_visit, &current);
-  		
-  		if(current.steps == j){
-  			return my_path;
-  		}
-		visited = add_to_set(visited, current.steps);
+  to_visit = enqueue_int(to_visit, i);	//LLint linked list
 
+  while(to_visit != NULL){
+		int current;
+  		dequeue_int(&to_visit, &current);
+  		if(current == j){
+  		my_path.vertices_visited[my_path.steps] = current;//adds this node integer to the path
+		my_path.steps++;	//increments the size of the path
+  		return my_path;
+		}
+  		visited = add_to_set(visited, current);
+  		for(int nextdoor = 0; nextdoor < g->vertices; nextdoor++){
+  			if(graph_has_edge(g, current, nextdoor) && !set_contains(visited, nextdoor)){
+  				to_visit = enqueue_int(to_visit, nextdoor);
+  				//printf("%d\n", nextdoor);
+  			}
+  		}
   }
+
 
   Path empty = {0, {0}};
   return empty;
