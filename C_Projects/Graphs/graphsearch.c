@@ -131,17 +131,10 @@ void print_path(Path path) {
 // Breadth-first search!
 Path graph_find_path_bfs(Graph *g, int i, int j) {
   // YOUR CODE HERE.
-
-	Path empty = {0, {0}};
-	return empty;
-}
-
-
-// Depth-first search!
-Path graph_find_path_dfs(Graph *g, int i, int j) {
-  // YOUR CODE HERE.
-   LLint *visited = NULL;	//keeps a list of the paths we want to visit
+  LLint *visited = NULL;	//keeps a list of the paths we want to visit
   LLint *to_visit = NULL;	//keeps a list of the paths we already visit
+  LLPath *llpath = NULL;
+  LLPath *to_return = NULL;
   Path my_path;
   my_path.steps = 0;
   //LLPath *llpath = NULL;
@@ -151,8 +144,55 @@ Path graph_find_path_dfs(Graph *g, int i, int j) {
   		dequeue_int(&to_visit, &current);
 
   		if(current == j){
-  		  	my_path.vertices_visited[my_path.steps] = current;//adds this node integer to the path
-			my_path.steps++;	//increments the size of the path
+  		  	my_path = path_extend(my_path, current);
+			llpath = enqueue_path(llpath, my_path);
+			break;
+  			//return my_path;
+		}
+		dequeue_path(&llpath, &my_path);
+  		for(int nextdoor = 0; nextdoor < g->vertices; nextdoor++){
+  			my_path = path_extend(my_path, current);
+  			if(graph_has_edge(g, current, nextdoor) && !set_contains(visited, nextdoor)){
+  			Path add_path;
+			add_path = path_extend(my_path, nextdoor);
+  			llpath = enqueue_path(llpath, add_path);
+  			to_return = enqueue_path(to_return, add_path);
+  			my_path = add_path;
+  			//print_path(my_path);
+  			to_visit = enqueue_int(to_visit, nextdoor);
+  			visited = add_to_set(visited, current);
+  			}
+  		}
+  }
+    printf("here\n");
+	if(llpath == NULL){Path empty = {0, {0}};return empty;}
+	print_path(my_path);
+  Path *cur = &my_path;
+  Path *eval = cur;
+  while(dequeue_path(&llpath, eval)){
+  		if(eval->steps < cur->steps){
+  			cur = eval;
+  		}
+  }
+  print_path(*cur);
+  return *cur;
+	
+}
+
+
+// Depth-first search!
+Path graph_find_path_dfs(Graph *g, int i, int j) {
+  // YOUR CODE HERE.
+  LLint *visited = NULL;	//keeps a list of the paths we want to visit
+  LLint *to_visit = NULL;	//keeps a list of the paths we already visit
+  Path my_path;
+  my_path.steps = 0;
+  to_visit = enqueue_int(to_visit, i);	//adds a path to the queue
+  while(to_visit != NULL){
+		int current;
+  		dequeue_int(&to_visit, &current);
+  		if(current == j){
+  		  	my_path = path_extend(my_path, current);
   			return my_path;
 		}
   		for(int nextdoor = 0; nextdoor < g->vertices; nextdoor++){
