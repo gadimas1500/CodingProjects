@@ -13,7 +13,7 @@ void check_vertex(int vertex, int n_vertices) {
       exit(1);
     }
 }
-
+//vagrind -s ./<exe>
 int main(int argc, char **argv) {
   char buf[BUFSIZE];
   FILE* infile;
@@ -59,6 +59,44 @@ int main(int argc, char **argv) {
   printf("searching with DFS from %d to %d\n", start, end);
   path = graph_find_path_dfs(g, start, end);
   print_path(path);
-
+  
+  free_graph(g);
   return 0;
 }
+
+
+
+void free_graph(Graph *g){
+	for(int i = 0; i < g->vertices; i++){
+			free(g->matrix[i]);
+	}
+	free(g);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,12 +4,29 @@
 
 #include "graphsearch.h"
 
+void free_LLint(LLint *list){
+	LLint *freethis;
+	while(list != NULL){
+		freethis = list;
+		list = list->next;
+		free(freethis);
+	}
+
+}
+void free_LLPath(LLPath *path){
+	LLPath *freethis;
+	while(path != NULL){
+		freethis = path;
+		path = path->next;
+		free(freethis);
+	}
+}
+
 // dealing with sets of integers. We wrote these in class.
 LLint *add_to_set(LLint *set, int val) {
   LLint *newfront = calloc(1, sizeof(LLint));
   newfront->val = val;
   newfront->next = set;
-
   return newfront;
 }
 
@@ -26,12 +43,11 @@ bool set_contains(LLint *set, int val) {
 LLint *enqueue_int(LLint *q, int val) {	//from the class lecture
   LLint *newint = calloc(1, sizeof(LLint));
   newint->val = val;
-
   if (q == NULL) {
-    return newint;}
+    return newint;
+  }
   LLint *current = q;
   while(current->next != NULL) {
-
     current = current->next;
   }
   current->next = newint;
@@ -60,12 +76,10 @@ LLPath *enqueue_path(LLPath *q, Path path) {
   LLPath *newpath = (LLPath *)calloc(1, sizeof(LLPath));	//creates a new path
   newpath->val = path;	//assigns that path that we want to add
   if(q == NULL){return newpath;}	//runs if the linked list is null
-
   LLPath *temp = q; //takes the pointer of q
   while(temp->next != NULL){	//this takes us to the bottom the list to add it there
   	temp = temp->next;			//everything must go in order
   }									//this makes it first in, first out
-
   temp->next = newpath; //this adds the new path to the bottom of the list
   return q;
 }
@@ -106,7 +120,6 @@ bool graph_has_edge(Graph *g, int i, int j) {
 Path path_extend(Path path, int new_vertex) {
   Path out;
   out.steps = path.steps;
-
   for (int i=0; i < path.steps; i++) {
     out.vertices_visited[i] = path.vertices_visited[i];
   }
@@ -135,38 +148,33 @@ Path graph_find_path_bfs(Graph *g, int i, int j) {
   LLint *to_visit = NULL;	//keeps a list of the paths we already visit
   LLPath *llpath = NULL;
   Path my_path;
-  
   to_visit = enqueue_int(to_visit, i);	//adds a path to the queue
   while(to_visit != NULL){
-
 		int current;
   		dequeue_int(&to_visit, &current);
-
 		if(my_path.steps == 0){
 			my_path = path_extend(my_path, i);
 		} else{
-		  		dequeue_path(&llpath, &my_path);
+		  	dequeue_path(&llpath, &my_path);
 		}
-
   		if(current == j){
+  		   free_LLint(visited);
+  		  	free_LLint(to_visit);
+  		  	free_LLPath(llpath);
   			return my_path;
 		}
 		visited = add_to_set(visited, current);
-		for(int nextdoor = current; nextdoor < g->vertices; nextdoor++){
+		for(int nextdoor = 0; nextdoor < g->vertices; nextdoor++){
 			if(graph_has_edge(g, current, nextdoor) && !set_contains(visited, nextdoor) && current != nextdoor){
-			Path add_path;
-			add_path = path_extend(my_path, nextdoor);
-			to_visit = enqueue_int(to_visit, nextdoor);
-			llpath = enqueue_path(llpath, add_path);
-			//my_path = path_extend(my_path, current);
+				Path add_path;
+				add_path = path_extend(my_path, nextdoor);
+				to_visit = enqueue_int(to_visit, nextdoor);
+				llpath = enqueue_path(llpath, add_path);
 			}
-			
-		}
+		} 
   }
-    printf("here\n");
 	Path empty = {0, {0}};
 	return empty;
-	
 }
 
 
@@ -183,6 +191,8 @@ Path graph_find_path_dfs(Graph *g, int i, int j) {
   		dequeue_int(&to_visit, &current);
   		if(current == j){
   		  	my_path = path_extend(my_path, current);
+  		  	free_LLint(visited);
+  		  	free_LLint(to_visit);
   			return my_path;
 		}
   		for(int nextdoor = 0; nextdoor < g->vertices; nextdoor++){
@@ -196,7 +206,6 @@ Path graph_find_path_dfs(Graph *g, int i, int j) {
   			}
   		}
   }
-
   Path empty = {0, {0}};
   return empty;
 }

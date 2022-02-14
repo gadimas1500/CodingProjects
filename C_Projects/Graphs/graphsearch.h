@@ -39,3 +39,6 @@ Path graph_find_path_bfs(Graph *g, int i, int j);	//we code
 Path graph_find_path_dfs(Graph *g, int i, int j);	//we code
 
 void print_path(Path path);
+void free_LLint(LLint *list);
+void free_LLPath(LLPath *path);
+void free_graph(Graph *g);
