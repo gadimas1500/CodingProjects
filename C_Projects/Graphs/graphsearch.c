@@ -47,9 +47,9 @@ LLint *enqueue_int(LLint *q, int val) {	//from the class lecture
     return newint;
   }
   LLint *current = q;
-  while(current->next != NULL) {
-    current = current->next;
-  }
+ // while(current->next != NULL) {
+   // current = current->next;
+ // }
   current->next = newint;
   return q;
 }
@@ -77,9 +77,9 @@ LLPath *enqueue_path(LLPath *q, Path path) {
   newpath->val = path;	//assigns that path that we want to add
   if(q == NULL){return newpath;}	//runs if the linked list is null
   LLPath *temp = q; //takes the pointer of q
-  while(temp->next != NULL){	//this takes us to the bottom the list to add it there
-  	temp = temp->next;			//everything must go in order
-  }									//this makes it first in, first out
+  //while(temp->next != NULL){	//this takes us to the bottom the list to add it there
+  	//temp = temp->next;			//everything must go in order
+ // }									//this makes it first in, first out
   temp->next = newpath; //this adds the new path to the bottom of the list
   return q;
 }
@@ -148,9 +148,10 @@ Path graph_find_path_bfs(Graph *g, int i, int j) {
   LLint *to_visit = NULL;	//keeps a list of the paths we already visit
   LLPath *llpath = NULL;
   Path my_path;
+  Path add_path;
+  int current;
   to_visit = enqueue_int(to_visit, i);	//adds a path to the queue
   while(to_visit != NULL){
-		int current;
   		dequeue_int(&to_visit, &current);
 		if(my_path.steps == 0){
 			my_path = path_extend(my_path, i);
@@ -158,15 +159,14 @@ Path graph_find_path_bfs(Graph *g, int i, int j) {
 		  	dequeue_path(&llpath, &my_path);
 		}
   		if(current == j){
-  		   free_LLint(visited);
-  		  	free_LLint(to_visit);
+  		   free_LLint(visited);//functions made to free the rest of the linked lists
+  		   free_LLint(to_visit);
   		  	free_LLPath(llpath);
   			return my_path;
 		}
 		visited = add_to_set(visited, current);
 		for(int nextdoor = 0; nextdoor < g->vertices; nextdoor++){
 			if(graph_has_edge(g, current, nextdoor) && !set_contains(visited, nextdoor) && current != nextdoor){
-				Path add_path;
 				add_path = path_extend(my_path, nextdoor);
 				to_visit = enqueue_int(to_visit, nextdoor);
 				llpath = enqueue_path(llpath, add_path);
