@@ -26,6 +26,7 @@ bool score_guess(char *secret, char *guess, char *result) {
 // but consider: could you do this search more quickly?
 bool valid_guess(char *guess, char **vocabulary, size_t num_words) {
   // TODO(you): finish this function
+  
 
   return false;
 }
@@ -46,22 +47,24 @@ bool valid_guess(char *guess, char **vocabulary, size_t num_words) {
 // null-terminated.
 char **load_vocabulary(char *filename, size_t *num_words) {
    char **out = NULL;	//the pointer we are assigning this to
+	out = (char**)calloc(1, 0);
+	//*out = (char*)malloc(8);
 	FILE* infile;
-	char buf[1024];
+	char buf[8];
 	infile = fopen(filename, "r");	//assigns the file to this var
-   unsigned long *nums = 0;
-   int index = 0;
-	while(fgets(buf, 1024, infile) != NULL){
-		printf("%s", buf);
-		(out+index) = *(char **)malloc(1024);
-		printf("here\n");
-		out[index] = buf;
-		nums++;
+   size_t nums = 0;	//the start of the file
+   int index = 1;
+	while(fgets(buf, 8, infile) != NULL){
+		out = (char**)realloc(out, 8*(index));	//reallocates new memory for the growing size of the list
+
+		*(out+(index-1)) = buf;	//assigns the current word to the current index
+		printf("out[%d]: %s", index-1, out[0]);
+		nums++;	
 		index++;
 	}
-	num_words = nums;	//assigns the number of words in the list
-	printf("Num words: %lu\n", (unsigned long) num_words/8);
 
+	*num_words = nums;	//assigns the number of words in the list
+	//printf("Num words: %lu\n", num_words);
 	fclose(infile);	//closes the file
    return out;
 }
@@ -84,10 +87,15 @@ int main(void) {
 
   // load up the vocabulary and store the number of words in it.
   vocabulary = load_vocabulary("vocabulary.txt", &num_words);
+    printf("check out[%d]: %s\n", 2305, vocabulary[2305]);
+    printf("check out[%d]: %s\n", 2306, vocabulary[2306]);
+    printf("check out[%d]: %s\n", 2307, vocabulary[2307]);
+    printf("check out[%d]: %s\n", 2308, vocabulary[2308]);
 
   // Randomly select one of the words from the file to be today's SECRET WORD.
   int word_index = rand() % num_words;
   char *secret = vocabulary[word_index];
+
 
   // input buffer -- we'll use this to get a guess from the user.
   char guess[80];
@@ -95,7 +103,6 @@ int main(void) {
   // buffer for scoring each guess.
   char result[6] = {0};
   bool success = false;
-
   printf("time to guess a 5-letter word! (press ctrl-D to exit)\n");
   while (!success) {
     printf("guess: ");
