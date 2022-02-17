@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+char **sort_list(char **l, int size); //helper function to sort the list in alpha order
 // Returns true if the guess is an exact match with the secret word, but
 // more importantly, fills in the result with the following:
 // - 'x' goes in a slot if the corresponding letter in the guess does not appear
@@ -15,8 +15,35 @@
 //   You can assume that result points at enough memory for a string of length
 //   5. (ie, at least 6 bytes long)
 bool score_guess(char *secret, char *guess, char *result) {
-  // TODO(you): finish this function
-
+	char ret[5];// = (char *)calloc(5, sizeof(char));
+	char green = 'g';
+	char yellow = 'y';
+	char not = 'x';
+	if(strcmp(secret, guess) == 0){	//if we gues the exact word
+		return true;
+	}
+	for(int i = 0; i < 5; i++){	
+		char let = guess[i];	//a char of the guess
+		for(int j = 0; j < 5; j++){
+			printf("%c == %c\n", let, secret[j]);
+			if(strcmp(&let, &secret[j]) == 0){	//chars in the same position and same char
+				ret[i] = green;
+				//continue;	//move onto the next word
+			}
+		}
+	}
+	for(int i = 0; i < 5; i++){
+		char let = guess[i];
+		if(strcmp(&let, &secret[i]) == 0 && strcmp(&ret[i], &green) != 0){ //checks if the char exists in the secret
+			ret[i] = yellow;
+		}
+	}
+	for(int i = 0; i < 5; i++){
+		if(strcmp(&result[i], &green) != 0 && strcmp(&result[i], &yellow) != 0){
+			ret[i] = not;
+		}
+	}
+	result = ret;
   return false;
 }
 
@@ -25,9 +52,11 @@ bool score_guess(char *secret, char *guess, char *result) {
 // A simple linear scan over the strings in vocabulary is fine for our purposes,
 // but consider: could you do this search more quickly?
 bool valid_guess(char *guess, char **vocabulary, size_t num_words) {
-  // TODO(you): finish this function
-  
-
+	for(int i = 0; i < num_words; i++){
+		if(strcmp(guess, vocabulary[i]) == 0){
+			return true;
+		}
+	}
   return false;
 }
 
@@ -47,32 +76,48 @@ bool valid_guess(char *guess, char **vocabulary, size_t num_words) {
 // null-terminated.
 char **load_vocabulary(char *filename, size_t *num_words) {
    char **out = NULL;	//the pointer we are assigning this to
-	out = (char**)calloc(1, 0);
+   int mem_size = 4;
+	out = (char**)malloc(mem_size);
 	//*out = (char*)malloc(8);
 	FILE* infile;
-	char buf[8];
+	char buf[12];
 	infile = fopen(filename, "r");	//assigns the file to this var
    size_t nums = 0;	//the start of the file
-   int index = 1;
-	while(fgets(buf, 8, infile) != NULL){
-		out = (char**)realloc(out, 8*(index));	//reallocates new memory for the growing size of the list
-
-		*(out+(index-1)) = buf;	//assigns the current word to the current index
-		printf("out[%d]: %s", index-1, out[0]);
+	char *word;
+	for(int i = 0; fgets(buf, 12, infile) != NULL; i++){
+		out[i] = strndup(buf, 5);	//assigns the current word to the current index
+		//out[i][strlen(out[i])-1] = '\0';
+		out = (char**)realloc(out, mem_size*(i+1)*100);	//reallocates new memory for the growing size of the list
 		nums++;	
-		index++;
 	}
-
 	*num_words = nums;	//assigns the number of words in the list
-	//printf("Num words: %lu\n", num_words);
+
+	out = sort_list(out, nums);	//sorts the list in alpha order
 	fclose(infile);	//closes the file
    return out;
+}
+
+char** sort_list(char **l, int size){	//sorts the list in alpha order
+	for(int i = 0; i < size; i++){
+		for(int j = i; j < size; j++){
+			if(strcmp(l[i], l[j]) > 0){
+				char *hold = l[j];
+				l[j] = l[i];
+				l[i] = hold;
+			}
+		}
+	}
+	return l;
 }
 
 // Free each of the strings in the vocabulary, as well as the pointer vocabulary
 // itself (which points to an array of char *).
 void free_vocabulary(char **vocabulary, size_t num_words) {
   // TODO(you): finish this function
+  for(int i = 0; i < num_words; i++){
+		free(vocabulary[i]);
+	}
+	free(vocabulary);
 }
 
 // Once your other functions are working, please revert your main() to its
@@ -87,14 +132,11 @@ int main(void) {
 
   // load up the vocabulary and store the number of words in it.
   vocabulary = load_vocabulary("vocabulary.txt", &num_words);
-    printf("check out[%d]: %s\n", 2305, vocabulary[2305]);
-    printf("check out[%d]: %s\n", 2306, vocabulary[2306]);
-    printf("check out[%d]: %s\n", 2307, vocabulary[2307]);
-    printf("check out[%d]: %s\n", 2308, vocabulary[2308]);
 
   // Randomly select one of the words from the file to be today's SECRET WORD.
   int word_index = rand() % num_words;
   char *secret = vocabulary[word_index];
+  printf("****SECRET WORD****: %s\n", secret);
 
 
   // input buffer -- we'll use this to get a guess from the user.
