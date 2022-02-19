@@ -30,7 +30,7 @@ class Wordle:
 
     def valid_guess(self, word): #if the guess exists in the list
         if word == "reveal letter":
-            return self.reveal_char()
+            print(f"Here is a letter -> {self.reveal_char()}")
         if word == "show":
             print(f"SECRET WORD: **{self.secret}**")
         return True if len(word) == 5 and word in self.vocabulary_list else False
