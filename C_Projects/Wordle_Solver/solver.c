@@ -80,6 +80,7 @@ char **load_vocabulary(char *filename, size_t *num_words) {
 }
 
 
+
 int main(int argc, char **argv) {
   char **vocabulary;
   size_t num_words;
@@ -99,6 +100,7 @@ int main(int argc, char **argv) {
   do {
     free(guess);
     guess = get_guess(vocabulary, num_words);
+
 
     if (guess == NULL) {
       printf("ran out of ideas?\n");

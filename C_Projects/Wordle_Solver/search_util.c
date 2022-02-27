@@ -15,9 +15,14 @@ int score_letter(char letter, char **vocabulary, size_t num_words) {
   // TODO(you): implement this function!
   int score = 0;
   for(int i = 0; i < (int)num_words; i++){	//the word
+ 		if(vocabulary[i] == NULL)
+		{
+			continue;
+		}
   		for(int j = 0; j < 5; j++){
   			if(letter == vocabulary[i][j]){		//a character in that word
   				score++;
+  				break;
   			}
   		}
   }
@@ -34,27 +39,28 @@ int score_letter(char letter, char **vocabulary, size_t num_words) {
 int score_word(char *word, int *letter_scores) {
 
   // TODO(you): implement this function!
-  char appeared[5];
-  bool move_on = false;
+  if(word == NULL){
+  		return 0;
+  }
+  char repeats[5] = {'0','0','0','0','0'};
   int word_score = 0;
+  bool move_on = false;
   for(int i = 0; i < 5; i++){			//for all the chars in the word
   		for(int j = 0; j < 26; j++){	//iterates all the chars in the letter list
-  			for(int k = 0; k < 5; k++){	//checks if we already awarded a score for that letter
-				if(appeared[k] == word[i]){
+  			for(int k = 0; k < 5; k++){
+				if(word[i] == repeats[k]){
 					move_on = true;
 					break;
 				}
-			}
-			if(move_on){	//if there is a repeat
-				break;
 	  		}
-	  		word_score += letter_scores[j];	
-	  		appeared[i] = word[i];
+	  		if(!move_on && word[i] == 'a' + j){
+		  		word_score += letter_scores[j];	
+		  		repeats[i] = word[i];
+		  	} else if(move_on){
+		  		move_on = false;
+		  		break;
+		  	}
   		}
-  		if(move_on){	//if there is a repeat
-  			move_on = false;
-  			continue;
-  		}	
   }
   return word_score;
 
@@ -66,19 +72,14 @@ int score_word(char *word, int *letter_scores) {
 // strings will need to be freed!
 char *get_guess(char **vocabulary, size_t num_words) {
   int letter_scores[26];
-
   for (int i = 0; i < 26; i++) {
     letter_scores[i] = score_letter('a' + i, vocabulary, num_words);
-    
   }
 
   char *best_guess = NULL;
   int best_score = 0;
   int score = 0;
   for (size_t i = 0; i < num_words; i++) {
-    if (vocabulary[i] == NULL) {
-      continue;
-    }
     score = score_word(vocabulary[i], letter_scores);
     if (score > best_score) {
       best_guess = vocabulary[i];
@@ -112,7 +113,6 @@ size_t filter_vocabulary_gray(char letter, char **vocabulary,
 		}
 	}
   return filtered;
-
 }
 
 // This function will filter down the vocabulary based on the knowledge that the
@@ -123,27 +123,33 @@ size_t filter_vocabulary_gray(char letter, char **vocabulary,
 size_t filter_vocabulary_yellow(char letter, int position, char **vocabulary,
                                 size_t num_words) {
   // TODO(you): implement this function!
-  bool move_on = false;
-  int removed = 0;
+  bool delete_word = false;
+  int filtered = 0;
   for(int i = 0; i < (int)num_words; i++){	//for all the words in the list
-  		for(int j = 0; j < 5; j++){		//for all the chars in the vocab word
-  			if(letter == vocabulary[i][j] && i == position){	//the char exists in the word and at the same position
-				move_on = false;
-				break;
-  			} else{ 
-  				move_on = true;
-  			}
+  		if(vocabulary[i] == NULL){
+  			continue;
   		}
-  		if(move_on){
-			continue;
-	  	} else{
-	  		free(vocabulary[i]);
-	  		vocabulary[i] = NULL;
-	  		removed++;
-	  	}
+  		for(int j = 0; j < 5; j++){		//for all the chars in the vocab word
+  			if(letter == vocabulary[i][j]){	//the char exists in the word and at the same position
+				if(i == position){	//delete the word if in the same position
+					free(vocabulary[i]);
+					vocabulary[i] = NULL;
+					filtered++;
+					break;
+				} else {
+					continue;
+				}
+  			}
+  			delete_word = true;
+  		}
+  		if(!delete_word){
+  			free(vocabulary[i]);
+  			vocabulary[i] = NULL;
+  			filtered++;
+  			delete_word = false;
+  		}
   }
-  return removed;
-
+  return filtered;
 }
 
 
@@ -155,8 +161,18 @@ size_t filter_vocabulary_green(char letter, int position, char **vocabulary,
                                size_t num_words) {
 
   // TODO(you): implement this function!
-  return 0;
-
+	int filtered = 0;
+	for(int i = 0; i < (int)num_words; i++){
+		if(vocabulary[i] == NULL){
+			continue;
+		}
+		if(letter != vocabulary[i][position]){
+			free(vocabulary[i]);
+			vocabulary[i] = NULL;
+			filtered++;
+		}
+	}
+	return filtered;
 }
 
 // Free each of the strings in the vocabulary, as well as the pointer vocabulary
