@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "businessdb_header.h"
-#define NUM_BUCKETS 30 //this is the initial size of the bucket
+#define NUM_BUCKETS 4 //this is the initial size of the bucket
 
 
 
@@ -60,8 +60,14 @@ int main(void){
 					printf("going to list\n");
 		}else if(strcmp(user_input, "save\n") == 0){
 					printf("going to save\n");
+					if(save_progress(myhash, "customers.tsv")){
+						printf("Your progress has been saved successfully!\n");
+					} else{
+						printf("There was an error saving your progess!\n");
+					}
+		}else if(strcmp(user_input, "print\n") == 0){
+					print_list(myhash);
 		}
-		print_list(myhash);
 	}while(strcmp(user_input, "quit\n") != 0);
 
 

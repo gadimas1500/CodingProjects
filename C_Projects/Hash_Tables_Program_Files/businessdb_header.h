@@ -9,6 +9,7 @@ typedef struct Person{
 	char *name;
 	char *shoe_size;
 	char *fav_food;
+	unsigned long hash;
 	struct Person *next;
 
 } Person;
@@ -17,6 +18,7 @@ typedef struct Person{
 typedef struct HashTable{
 	int size;
 	Person **customers;	//this is a 2d array
+	Person *top;
 } HashTable;
 
 HashTable *create_hash_table(int size);
@@ -38,7 +40,7 @@ void print_list(HashTable *hashtable);
 //prints every person's info
 //format it the same way as lookup
 
-bool save_progress(void);
+bool save_progress(HashTable *hashtable, char *filename);
 //currently takes in no parameters, but may change later
 //this saves the progress into a log to avoid deletions
 
