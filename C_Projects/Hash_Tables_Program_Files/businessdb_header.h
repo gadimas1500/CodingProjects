@@ -7,7 +7,7 @@
 typedef struct Person{
 	char *email;
 	char *name;
-	int shoe_size;
+	char *shoe_size;
 	char *fav_food;
 	struct Person *next;
 
@@ -16,13 +16,13 @@ typedef struct Person{
 
 typedef struct HashTable{
 	int size;
-	Person *customers;	//this is a 2d array
+	Person **customers;	//this is a 2d array
 } HashTable;
 
 HashTable *create_hash_table(int size);
 //creates a new hash table for us
 
-void add_person(HashTable *hashtable, char *email, char *name, int shoe_size, char *favfood);
+void add_person(HashTable *hashtable, char *email, char *name, char *shoe_size, char *favfood);
 //we need to realloate new memory to store this new person if their hash it greater than the number of buckets we currently have
 
 Person *look_up(HashTable *hashtable, char *email);	

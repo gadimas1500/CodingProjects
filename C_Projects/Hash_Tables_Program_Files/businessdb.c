@@ -6,7 +6,13 @@
 #include <ctype.h>
 
 HashTable *create_hash_table(int size){	//finished	
-	HashTable *ht = (HashTable *)calloc(size, sizeof(HashTable));
+	HashTable *ht = (HashTable *)malloc(sizeof(HashTable));
+	ht->size = size;
+	ht->customers = (Person **)calloc(size, sizeof(Person*));
+	for(int i = 0; i < size; i++){
+		ht->customers[i] = (Person *)malloc(sizeof(Person));
+		ht->customers[i] = NULL;
+	}
 	return ht;
 }
 
@@ -31,19 +37,35 @@ unsigned long hash(char *email){	//finished
 	return hash;
 }
 
-void add_person(HashTable *hashtable, char *email, char *name, int shoe_size, char *favfood){
+void add_person(HashTable *hashtable, char *email, char *name, char *shoe_size, char *favfood){
 	int int_hash;
 	Person *newperson = (Person*)calloc(1, sizeof(Person));	//creates a new person
+	//printf("HASH CREATED: %lu\n", hash(email));
 	if(hash(email) % hashtable->size+1 >= hashtable->size){	//creates a new bucket if needed
+		//printf("INIF What we want: %lu\n", hash(email) % hashtable->size);
 		hashtable->size++;
-		hashtable = realloc(hashtable, 4*hashtable->size);	//making a new bucket
+		hashtable = (HashTable*)realloc(hashtable, 400*hashtable->size);	//making a new bucket
+
 	}
+	//printf("OUTIF What we want: %lu\n", hash(email) % hashtable->size);
 	int_hash = hash(email) % hashtable->size;	//this is the index to put the person in
 	newperson->email = email;
 	newperson->name =name;
 	newperson->shoe_size = shoe_size;
 	newperson->fav_food = favfood;
-	hashtable[int_hash].customers = newperson;
+		//printf("HERE\n");
+	if(hashtable->customers[int_hash] == NULL){	//if we are adding a person to the bucket for the first time
+
+		hashtable->customers[int_hash] = newperson;
+	} else{	//we are adding a person with other customers
+	//we need to iterate until we get to the last person in that bucket
+		Person *current = hashtable->customers[int_hash];	//start off with the first person
+
+		while(current->next != NULL){	//keep moving down the list 
+			current = current->next;	
+		}
+		hashtable->customers[int_hash]->next = newperson;	//add this new person as the new customer
+	}
 }
 
 Person *look_up(HashTable *hashtable, char *email){
@@ -57,7 +79,14 @@ bool delete_person(HashTable *hashtable, char *email){
 }
 
 void print_list(HashTable *hashtable){
-
+	for(int i = 0; i < hashtable->size; i++){
+		Person *current = hashtable->customers[i];
+		if(current == NULL){continue;}
+		printf("Name: %s\n Email: %s\n Fav Food: %s\n Shoe Size: %s\n\n", current->name, current->email, current->fav_food, current->shoe_size);
+		while(current->next != NULL){
+			current = current->next;
+		}
+	}
 }
 
 bool save_progress(void){
@@ -68,7 +97,7 @@ bool free_memory(HashTable *hashtable){
 	return false;
 }
 
-void load_hash_table(HashTable *hashtable, char *filename, int *size){
+void load_hash_table(HashTable *hashtable, char *filename, int *size){	//FIXME
 	char *out = NULL;
 	FILE* infile;
 	char buf[50];
@@ -94,10 +123,12 @@ void load_hash_table(HashTable *hashtable, char *filename, int *size){
 						strcat(name, token);
 						token = strtok(NULL, "\t");	//goes onto the next word
 					}
-					shoe_size = atoi(token);
+					shoe_size = atoi(token);	//we've already gone here, so just use it
 					break;
 				case 2:
 					favfood = token;				//assigns the fav food
+					break;
+				default:
 					break;
 			}
 			count++;
@@ -105,7 +136,7 @@ void load_hash_table(HashTable *hashtable, char *filename, int *size){
 		}
 		nums++;
 		//here is what we do with all the info
-		//printf("%s %s %s\n", email, name, favfood);
+		//printf("%s %s %s %d", email, name, favfood, shoe_size);
 		
 	}
 	*size = nums;
