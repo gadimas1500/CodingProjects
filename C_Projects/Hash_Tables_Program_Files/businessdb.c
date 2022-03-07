@@ -10,13 +10,13 @@ HashTable *create_hash_table(int size){	//finished
 	ht->size = size;
 	ht->customers = (Person **)calloc(size, sizeof(Person*));
 	for(int i = 0; i < size; i++){
-		ht->customers[i] = (Person *)malloc(sizeof(Person));
+		ht->customers[i] = (Person *)calloc(1, sizeof(Person));
 		ht->customers[i] = NULL;
 	}
 	return ht;
 }
 
-bool isNumber(char *s)	//checks if a string is a complete number
+bool isNumber(char *s)	//checks if a string is a complete number FINISHED
 {
     for (int i = 0; s[i] != '\0'; i++)
     {
@@ -40,19 +40,12 @@ unsigned long hash(char *email){	//finished
 void add_person(HashTable *hashtable, char *email, char *name, char *shoe_size, char *favfood){	//finished
 	int int_hash;
 	Person *newperson = (Person*)calloc(1, sizeof(Person));	//creates a new person
-	if(hash(email) % hashtable->size+1 >= hashtable->size){	//creates a new bucket if needed
-		hashtable->size++;
-		hashtable = (HashTable*)realloc(hashtable, 400*hashtable->size);	//making a new bucket
-
-	}
-	//printf("OUTIF What we want: %lu\n", hash(email) % hashtable->size);
 	int_hash = hash(email) % hashtable->size;	//this is the index to put the person in
 	newperson->email = email;
 	newperson->name =name;
 	newperson->shoe_size = shoe_size;
 	newperson->fav_food = favfood;
 	newperson->hash = int_hash;
-	printf("We have a %d size and want to access %d -> %s\n", hashtable->size, int_hash, newperson->name);
 	if(hashtable->customers[int_hash] == NULL){	//if we are adding a person to the bucket for the first time
 		hashtable->customers[int_hash] = newperson;
 	} else{	//we are adding a person with other customers
@@ -66,26 +59,57 @@ void add_person(HashTable *hashtable, char *email, char *name, char *shoe_size, 
 	}
 }
 
-Person *look_up(HashTable *hashtable, char *email){
- Person *find;
- return find;
+Person *look_up(HashTable *hashtable, char *email){	//finished
+	int int_hash = hash(email) % hashtable->size;
+	Person *locate = hashtable->customers[int_hash];
+	if(locate == NULL){return NULL;}
+	do{
+			if(strcmp(locate->email, email) == 0){
+				return locate;
+			}
+			if(locate->next == NULL){break;}
+			locate = locate->next;
+		}while(1);
+	return NULL;	//if we've gone through that whole linked list
 }
 
-bool delete_person(HashTable *hashtable, char *email){
-	return false;
+bool delete_person(HashTable *hashtable, char *email){	//finsihed
+	int int_hash = hash(email) % hashtable->size;
+	Person *locate = hashtable->customers[int_hash];
+	Person *prevperson = NULL;
+	if(locate == NULL){return false;}
+	do{
+			if(strcmp(locate->email, email) == 0){
+				if(prevperson != NULL){	//if it's not the first thing in the list
+					prevperson->next = locate->next;
+				} else{						//if it's the first thing in the list
+					hashtable->customers[int_hash] = locate->next;
+				}
+				free(locate);
+				return true;
+			}
+			if(locate->next == NULL){break;}
+			prevperson = locate;
+			locate = locate->next;
+		}while(1);
+	return false;	//if we've gone through that whole linked list
 
 }
 
 void print_list(HashTable *hashtable){				//finished
+	bool populated = false;
 	for(int i = 0; i < hashtable->size; i++){
 		Person *current = hashtable->customers[i];
 		if(current == NULL){continue;}
 		do{
-			printf("Name: %s\n Email: %s\n Fav Food: %s\n Shoe Size: %s\n\n", current->name, current->email, current->fav_food, current->shoe_size);
+			printf("Name: %s\n Email: %s\n Fav Food: %s\n Shoe Size: %s\nHashindx: %d\n\n", current->name, current->email, current->fav_food, current->shoe_size, current->hash);
+			populated = true;
 			if(current->next == NULL){break;}
 			current = current->next;
-			
 		}while(1);
+	}
+	if(!populated){
+		printf("There is no one in your list :(\n");
 	}
 }
 
@@ -105,8 +129,6 @@ bool save_progress(HashTable *hashtable, char* filename){	//finished
 			fprintf(infile, "%s", current->shoe_size);
 			fprintf(infile, "%c", '\t');
 			fprintf(infile, "%s", current->fav_food);
-			fprintf(infile, "%c", '\t');
-			fprintf(infile, "%lu", current->hash);
 			fprintf(infile, "%c", '\n');
 			if(current->next == NULL){break;}
 			current = current->next;
@@ -117,23 +139,42 @@ bool save_progress(HashTable *hashtable, char* filename){	//finished
 	return true;
 }
 
-bool free_memory(HashTable *hashtable){
-	return false;
+void free_memory(HashTable *hashtable){	//TODO
+	for(int i = 0; i < hashtable->size; i++){
+		Person *current = hashtable->customers[i];
+		Person *next = NULL;
+		if(current == NULL){continue;}	//if there is nothing at this node
+		
+		if(current->next != NULL){			//if there is a person connected to this (next)
+			next = current->next;			
+			do{
+				free(current);
+				if(next->next == NULL){break;}
+				current = next;
+				next = next->next;
+			}while(true);
+			
+				free(next);
+		} else{
+			//free this node and move on
+				free(current);
+		}
+	}
+	free(hashtable->customers);
+	free(hashtable);
 }
 
-void load_hash_table(HashTable *hashtable, char *filename, int *size){	
-	char *out = NULL;
+void load_hash_table(HashTable *hashtable, char *filename){	//finished
 	FILE* infile;
-	int byte_size = 100;
+	char *out = NULL;
+	int byte_size = 200;
 	char buf[byte_size];
 	infile = fopen(filename, "r");
-	size_t nums = 0;
-
 	for(int i = 0; fgets(buf, byte_size, infile) != NULL; i++){
 		char *email, *favfood;
 		char *name;
 		char *shoe_size;
-		out = strndup(buf, byte_size);					//temp var to hold the string
+		out = strndup(buf, byte_size);
 		char* token = strtok(out, "\t");		//temp var to hold a piece of the string
 		int count = 0;								//holds where we are in the string
 		while(token != NULL){					//checks the string
@@ -145,10 +186,10 @@ void load_hash_table(HashTable *hashtable, char *filename, int *size){
 					name = token;
 					break;
 				case 2:
-					shoe_size = token;	//we've already gone here, so just use it
+					shoe_size = token;	
 					break;
 				case 3:
-					token[strlen(token) - 1] = '\0';	//removes a trailing \n
+					strtok(token, "\n");			//removes a trailing \n
 					favfood = token;				//assigns the favorite food
 					break;
 				default:
@@ -157,14 +198,18 @@ void load_hash_table(HashTable *hashtable, char *filename, int *size){
 			count++;
 			token = strtok(NULL, "\t");	//separates the word based on the tab
 		}
-		nums++;
 		add_person(hashtable, email, name, shoe_size, favfood);
 	}
-
-	*size = nums;
 	fclose(infile);
-	
+	//free(out);
 }
+
+
+
+
+
+
+
 
 
 
