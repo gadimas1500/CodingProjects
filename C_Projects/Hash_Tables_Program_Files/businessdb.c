@@ -9,10 +9,6 @@ HashTable *create_hash_table(int size){	//finished
 	HashTable *ht = (HashTable *)malloc(sizeof(HashTable));
 	ht->size = size;
 	ht->customers = (Person **)calloc(size, sizeof(Person*));
-	for(int i = 0; i < size; i++){
-		ht->customers[i] = (Person *)calloc(1, sizeof(Person));
-		ht->customers[i] = NULL;
-	}
 	return ht;
 }
 
@@ -144,7 +140,7 @@ void free_memory(HashTable *hashtable){	//TODO
 		Person *current = hashtable->customers[i];
 		Person *next = NULL;
 		if(current == NULL){continue;}	//if there is nothing at this node
-		
+		free(current->email);
 		if(current->next != NULL){			//if there is a person connected to this (next)
 			next = current->next;			
 			do{
@@ -153,11 +149,9 @@ void free_memory(HashTable *hashtable){	//TODO
 				current = next;
 				next = next->next;
 			}while(true);
-			
 				free(next);
 		} else{
-			//free this node and move on
-				free(current);
+			free(current);		//free this node and move on
 		}
 	}
 	free(hashtable->customers);
@@ -201,7 +195,6 @@ void load_hash_table(HashTable *hashtable, char *filename){	//finished
 		add_person(hashtable, email, name, shoe_size, favfood);
 	}
 	fclose(infile);
-	//free(out);
 }
 
 
