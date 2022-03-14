@@ -50,14 +50,14 @@ unsigned long hash(char *email);
 void free_memory(HashTable *hashtable);
 //frees the memory of the hash table and all of its contents
 //returns true if we completed it
-
 void load_hash_table(HashTable *hashtable, char *filename);
 //loads all the values of the file into the hash table and loads the size with the number of people in the list
 
 bool isNumber(char *s);
 //checks if a string is a number
 
-
+//char hold(char *val);
+//a value on hold to free after the program ends
 
 
 

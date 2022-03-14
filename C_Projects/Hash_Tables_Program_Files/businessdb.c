@@ -98,7 +98,7 @@ void print_list(HashTable *hashtable){				//finished
 		Person *current = hashtable->customers[i];
 		if(current == NULL){continue;}
 		do{
-			printf("Name: %s\n Email: %s\n Fav Food: %s\n Shoe Size: %s\nHashindx: %d\n\n", current->name, current->email, current->fav_food, current->shoe_size, current->hash);
+			printf("Name: %s\n Email: %s\n Fav Food: %s\n Shoe Size: %s\n\n", current->name, current->email, current->fav_food, current->shoe_size);
 			populated = true;
 			if(current->next == NULL){break;}
 			current = current->next;
@@ -160,21 +160,21 @@ void free_memory(HashTable *hashtable){	//TODO
 
 void load_hash_table(HashTable *hashtable, char *filename){	//finished
 	FILE* infile;
-	char *out = NULL;
 	int byte_size = 200;
+	char *out = NULL;
 	char buf[byte_size];
 	infile = fopen(filename, "r");
 	for(int i = 0; fgets(buf, byte_size, infile) != NULL; i++){
-		char *email, *favfood;
-		char *name;
+		char *email;
+		char *favfood, *name;
 		char *shoe_size;
-		out = strndup(buf, byte_size);
-		char* token = strtok(out, "\t");		//temp var to hold a piece of the string
+		out = strdup(buf);	//takes out memory we can't free
+		char *token = strtok(out, "\t");		//temp var to hold a piece of the string
 		int count = 0;								//holds where we are in the string
 		while(token != NULL){					//checks the string
 			switch(count){
 				case 0:
-					email = token;					//assigns the email
+					email = out;	//assigns the email
 					break;
 				case 1:
 					name = token;
@@ -184,7 +184,7 @@ void load_hash_table(HashTable *hashtable, char *filename){	//finished
 					break;
 				case 3:
 					strtok(token, "\n");			//removes a trailing \n
-					favfood = token;				//assigns the favorite food
+					favfood = token;			//assigns the favorite food
 					break;
 				default:
 					break;
@@ -193,6 +193,7 @@ void load_hash_table(HashTable *hashtable, char *filename){	//finished
 			token = strtok(NULL, "\t");	//separates the word based on the tab
 		}
 		add_person(hashtable, email, name, shoe_size, favfood);
+
 	}
 	fclose(infile);
 }

@@ -15,7 +15,6 @@ int main(void){
 	HashTable *myhash;
 	myhash = create_hash_table(NUM_BUCKETS);
 	load_hash_table(myhash, "customers.tsv");
-	printf("LOADED: %d\n", myhash->size);
 	int load_size = 40;
 	char user_input[load_size];
 	do{
